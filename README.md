@@ -21,7 +21,7 @@ import timestamp
 ```
 
 # Use
-- `timestamp.add_now_to_new()` will automatically be called upon opening or creating a new note and will add a timestamp. If you remove it it will keep adding current timestamp upon reopening the tab unless the note is not empty or is saved
+- `timestamp.add_now_to_new()` will automatically be called upon opening or creating a new note and will add a timestamp. won't add it back once removed
 - `timestamp.add_creation()` will add a creation timestamp at the top of a currently opened, but never saved non empty note, unless the date is already added
 - `timestamp.add_creation_to_all()` calls `timestamp.add_creation()` on all open tabs
 - `timestamp.add_now()` inserts current timestamp at cursor location
