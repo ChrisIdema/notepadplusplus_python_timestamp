@@ -1,20 +1,44 @@
 from Npp import editor, notepad, NOTIFICATION
 import time
 import os
+import json
 
-def add_now_to_new(args=None):
+def add_now_to_new(args):
 	"""add current timestamp to newly created empty document (same as creation timestamp)"""
 
 	file_name = notepad.getCurrentFilename()
 	# if saved file_name is an absolute path and won't start with "new ", else it's 'new \d+'
-	if (file_name.startswith("new ") or file_name == "") and editor.getLength() == 0:
-		timestamp = time.strftime("%Y-%m-%d_%H%M%S")  # e.g. 2011-12-13_141516        
-		editor.addText(timestamp + "\n")
+	if (file_name.startswith("new ") or file_name == ""): #never saved file
+
+		state_path = os.path.join(os.getenv('APPDATA'), 'Notepad++', 'plugins/config/PythonScript/scripts/timestamp.json')  
+
+		state = {}
+		if os.path.exists(state_path):
+			with open(state_path,'r') as f:
+				state = json.load(f)
+
+		if args["code"] == NOTIFICATION.BUFFERACTIVATED: 			# tab switched or new file opened
+			if editor.getLength() == 0:								# file is empty (no timestamp)	
+				if file_name not in state or not state[file_name]: 	# prevents re-adding removed timestamp
+					timestamp = time.strftime("%Y-%m-%d_%H%M%S")  	# e.g. 2011-12-13_141516        
+					editor.addText(timestamp + "\n")
+					# mark timestamp as added:
+					state[file_name] = True 	
+					with open(state_path,'w') as f:
+						json.dump(state, f)
 		
-# Register the callback so it runs every time a new buffer (tab) is activated
-notepad.callback(add_now_to_new, [NOTIFICATION.BUFFERACTIVATED])
+		elif args["code"] == NOTIFICATION.FILEBEFORECLOSE: # closed a tab
+			# never saved file (empty or non empty)
+			# delete mark so new timestamp can be added when a new file will be created with same sequence number:
+			state[file_name] = False
+			with open(state_path,'w') as f:
+				json.dump(state, f)
+	
+		
+# Register the callback so it runs every time a new buffer (tab) is activated or if a tab is closed
+notepad.callback(add_now_to_new, [NOTIFICATION.BUFFERACTIVATED, NOTIFICATION.FILEBEFORECLOSE])
 
-
+ 
 def add_now():
 	"""insert now timestamp at current cursor location"""
 	timestamp = time.strftime("%Y-%m-%d_%H%M%S")  # e.g. 2011-12-13_141516    
@@ -30,7 +54,7 @@ def add_creation():
 		return False
 	
 	# if saved file_name is an absolute path and won't start with "new ", else it's 'new \d+'
-	if not (file_name.startswith("new ") or file_name == ""):
+	if not (file_name.startswith("new ") or file_name == ""): #never saved file
 		print("won't add creation date to saved file as notepad++ doesn't track that and file dates are not reliable")
 		return False
 		
