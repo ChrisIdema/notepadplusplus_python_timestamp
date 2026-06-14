@@ -12,10 +12,10 @@ If you want to use `Python Script 2.1` which uses `Python2.7` you need to rewrit
 - Notepad++ -> Plugins -> Python Script -> Configuration...
 - Initialisation: `ATSTARTUP`*
 - Notepad++ -> Plugins -> Python Script -> New script
-- add timestamp.py ('`C:\Program Files\Notepad++\plugins\PythonScript\scripts\')
+- add timestamp.py ('`%appdata%\Notepad++\plugins\config\PythonScript\scripts\')
 
 *`ATSTARTUP` is not reliable
-so add the following line at the bottom of `C:\Program Files\Notepad++\plugins\PythonScript\scripts\startup.py`:
+so add the following line at the bottom of `%appdata%\Notepad++\plugins\config\PythonScript\scripts\startup.py`:
 ```
 import timestamp
 ```
